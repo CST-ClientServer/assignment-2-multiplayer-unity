@@ -13,7 +13,6 @@ GameObject:
   - component: {fileID: 7368593878579650785}
   - component: {fileID: 855506670730600240}
   - component: {fileID: 4172503029313230352}
-  - component: {fileID: 517068470056097410}
   m_Layer: 3
   m_Name: Runner
   m_TagString: Player
@@ -85,6 +84,16 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 1
   playerVisuals: {fileID: 517032442391661454}
+  hurtboxPoint: {fileID: 0}
+  PlayerDiedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  PlayerCrouchEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  PlayerReviveEvent:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!114 &4172503029313230352
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -100,18 +109,6 @@ MonoBehaviour:
   target: {fileID: 6770944291919455391}
   bottomClamp: -60
   topClamp: 70
---- !u!114 &517068470056097410
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1792970456529556542}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9773150644b5232469f9b1cc13baa0a0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &6377965188990730081
 GameObject:
   m_ObjectHideFlags: 0
@@ -266,7 +263,7 @@ MonoBehaviour:
   player: {fileID: 855506670730600240}
 --- !u!95 &8033770039901885901
 Animator:
-  serializedVersion: 5
+  serializedVersion: 7
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -280,6 +277,7 @@ Animator:
   m_ApplyRootMotion: 0
   m_LinearVelocityBlending: 0
   m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
