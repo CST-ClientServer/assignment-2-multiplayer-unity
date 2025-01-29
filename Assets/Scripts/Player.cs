@@ -7,17 +7,21 @@ using UnityEngine.Events;
 public class Player : MonoBehaviour
 {
 	// Constants
-	[SerializeField] public float MoveSpeed { get; private set; } = 10f;
-	[SerializeField] public float SprintMultiplier { get; private set; } = 2f;
-	[SerializeField] public float ModelRotationSpeed { get; private set; } = 5f;
-	[SerializeField] public float JumpStrength { get; private set; } = 10f;
-	private float groundedThreshold;
+	public float MoveSpeed { get; private set; } = 10f;
+	public float SprintMultiplier { get; private set; } = 2f;
+	public float ModelRotationSpeed { get; private set; } = 5f;
+	public float JumpStrength { get; private set; } = 10f;
 	public float Height { get; private set; }
 	public float Radius { get; private set; }
+	private float groundedThreshold;
 
 	// Components
 	[SerializeField] private LayerMask collisionLayer;
 	[SerializeField] private PlayerVisuals playerVisuals;
+
+	// Needed since transform_get can't be called on side thread
+	[SerializeField] public Vector3 Position;
+	[SerializeField] public Vector3 Forward;
 
 	// Events
 	public UnityEvent PlayerDiedEvent = new();
@@ -29,18 +33,19 @@ public class Player : MonoBehaviour
 	public bool IsDead { get; private set; } = false;
 	public bool IsWalking { get; private set; } = false;
 	public bool IsSprinting { get; private set; } = false;
-	public bool IsCrouching { get; private set; } = false;
+	public bool IsCrouching { get; private set; } = false;	
 	private float verticalSpeed = 0;
 
-	// Start is called before the first frame update
 	void Start()
 	{
+		transform.position = Position;
+		transform.forward = Forward;
+
 		Height = GetComponent<CapsuleCollider>().height;
 		Radius = GetComponent<CapsuleCollider>().radius;
 		groundedThreshold = Height / 2;
 	}
 
-	// Update is called once per frame
 	void Update()
 	{
 		// Calculate gravity
@@ -50,7 +55,9 @@ public class Player : MonoBehaviour
 		// Play fall animation
 		if (verticalSpeed <= 0) playerVisuals.PlayAnimation(PlayerVisuals.FALL);
 
-		transform.position += Vector3.up * verticalSpeed * Time.deltaTime;
+		Position += Vector3.up * verticalSpeed * Time.deltaTime;
+		transform.position = Position;
+		transform.forward = Forward;
 	}
 
 	public void KillPlayer()
@@ -69,14 +76,14 @@ public class Player : MonoBehaviour
 
 	public void SetPosition(Vector3 position)
 	{
-		if (transform.position == position) IsWalking = false;
+		if (Position == position) IsWalking = false;
 		else IsWalking = true;
-		transform.position = position;
+		Position = position;
 	}
 
 	public void SetForward(Vector3 rotation)
 	{
-		transform.forward = rotation;
+		Forward = rotation;
 	}
 
 	public void Jump(float amount)
@@ -99,12 +106,13 @@ public class Player : MonoBehaviour
 
 	public void Interact()
 	{
+		if (!IsChasing) return; // Don't do anything if player isnt it
 		playerVisuals.PlayAnimation(PlayerVisuals.HIT);
 
 		// Check collision in front
 		RaycastHit collidedObject;
-		bool collided = Physics.CapsuleCast(transform.position, transform.position + Vector3.up * Height, 
-			Radius, transform.forward, out collidedObject, 2f);
+		bool collided = Physics.CapsuleCast(Position, Position + Vector3.up * Height, Radius,
+				Forward, out collidedObject, 2f);		
 
 		// Early exit if no collision
 		if (!collided) return;
