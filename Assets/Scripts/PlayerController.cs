@@ -4,57 +4,54 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    // Components
-    private Player player;
-    private InputManager inputManager;
+	// Components
+	private Player player;
+	private InputManager inputManager;
 
-    void Start()
-    {
-        inputManager = InputManager.Instance;        
-        player = GetComponent<Player>();
-    }
+	void Start()
+	{
+		inputManager = InputManager.Instance;
+		player = GetComponent<Player>();
 
-    void Update()
-    {
-        if (player.IsDead)
-        {
-            inputManager.Disabled = true;
-            return;
-        }
-        else inputManager.Disabled = false;            
-        
-        HandleMovement();
-        HandleInteract();
-        HandleCrouch();
-    }
+		// Add listeners
+		player.PlayerDiedEvent.AddListener(() => inputManager.Disabled = true);
+		player.PlayerReviveEvent.AddListener(() => inputManager.Disabled = false);
+	}
 
-    private void HandleMovement()
-    {
-        // Toggle sprint
-        player.Sprint(inputManager.AttemptedSprint());
+	void Update()
+	{
+		HandleMovement();
+		HandleInteract();
+		HandleCrouch();
+	}
 
-        // Calculate movement
-        Vector3 directionVector = inputManager.GetInputVector();
-        Vector3 moveVector = directionVector * player.MoveSpeed;
-        if (player.IsSprinting) moveVector *= player.SprintMultiplier;
+	private void HandleMovement()
+	{
+		// Toggle sprint
+		player.Sprint(inputManager.AttemptedSprint());
 
-        player.SetPosition(player.transform.position + moveVector * Time.deltaTime);
+		// Calculate movement
+		Vector3 directionVector = inputManager.GetInputVector();
+		Vector3 moveVector = directionVector * player.MoveSpeed;
+		if (player.IsSprinting) moveVector *= player.SprintMultiplier;
 
-        if (inputManager.AttemptedJump() && player.IsGrounded()) player.Jump(player.JumpStrength);
+		player.SetPosition(player.transform.position + moveVector * Time.deltaTime);
 
-        // Rotate based on direction
-        player.SetForward(Vector3.Slerp(transform.forward, directionVector, Time.deltaTime * player.ModelRotationSpeed));
+		if (inputManager.AttemptedJump() && player.IsGrounded()) player.Jump(player.JumpStrength);
+
+		// Rotate based on direction
+		player.SetForward(Vector3.Slerp(transform.forward, directionVector, Time.deltaTime * player.ModelRotationSpeed));
 	}
 
 	private void HandleInteract()
-    {
-        if (!inputManager.AttemptedInteract()) return;
-        player.Interact(true);
-    }
+	{
+		if (!inputManager.AttemptedInteract()) return;
+		player.Interact();
+	}
 
-    private void HandleCrouch()
-    {
-        if (!inputManager.AttemptedCrouch()) return;
-        player.Crouch(!player.IsCrouching);
-    }
+	private void HandleCrouch()
+	{
+		if (!inputManager.AttemptedCrouch()) return;
+		player.Crouch(!player.IsCrouching);
+	}
 }
