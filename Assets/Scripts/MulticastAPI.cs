@@ -68,7 +68,6 @@ public class MulticastAPI : MonoBehaviour, INetwork
 	{
 		// Set up buffer for reading
 		byte[] buffer = new byte[13]; // Biggest size it can be
-
 		try
 		{
 			// Set up loop to read from socket
