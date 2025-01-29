@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class GameDriver : MonoBehaviour
 {
+	public static GameDriver Instance { get; private set; }
+
 	// Components
 	private InputManager inputManager;
 
@@ -13,6 +15,16 @@ public class GameDriver : MonoBehaviour
 	private static readonly float startDelaySeconds = 5;
 	private float timer = 0;
 	private float currentLimit;
+
+	private void Awake()
+	{
+		if (Instance != null && Instance != this)
+		{
+			Destroy(gameObject);
+			return;
+		}
+		Instance = this;
+	}
 
 	// Start is called before the first frame update
 	void Start()
@@ -33,6 +45,12 @@ public class GameDriver : MonoBehaviour
 	public float GetTime()
 	{
 		return timer;
+	}
+
+	public void SyncTimer(float time)
+	{
+		// Assumes person who joined late needs to sync with first person in
+		if (time < timer) timer = time;
 	}
 
 	private void RunPregame()
