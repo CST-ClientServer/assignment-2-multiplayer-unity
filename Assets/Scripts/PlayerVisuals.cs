@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -16,6 +17,7 @@ public class PlayerVisuals : MonoBehaviour
     public static readonly string HIT = "Hitting";
 
     [SerializeField] private Player player;
+    private Queue<Action> triggerQueue = new();
     private Animator animator;
 
     void Start()
@@ -29,10 +31,12 @@ public class PlayerVisuals : MonoBehaviour
         animator.SetBool(IS_SPRINTING, player.IsSprinting);
         animator.SetBool(IS_CROUCHING, player.IsCrouching);
         animator.SetBool(IS_GROUNDED, player.IsGrounded());
+        while (triggerQueue.Count > 0) triggerQueue.Dequeue().Invoke();
     }
 
     public void PlayAnimation(string animationName)
     {
-        animator.SetTrigger(animationName); 
+        // SetTrigger not allowed to be called on main thread, need to queue it instead for update to call it
+        triggerQueue.Enqueue(new Action(() => animator.SetTrigger(animationName)));
     }
 }
