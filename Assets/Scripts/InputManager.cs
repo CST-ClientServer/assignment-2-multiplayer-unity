@@ -5,7 +5,7 @@ using UnityEngine.PlayerLoop;
 
 public class InputManager : MonoBehaviour
 {
-	public static InputManager Instance {  get; private set; }
+	public static InputManager Instance { get; private set; }
 	public static bool IsLockedCursor { get; private set; } = false;
 	public bool Disabled = false;
 	public static float mouseSensitivity = 40f;
@@ -22,18 +22,18 @@ public class InputManager : MonoBehaviour
 
 	private void Start()
 	{
-		LockMouse(true);	
+		LockMouse(true);
 	}
 	private void Update()
 	{
-		ReadPause();
+		ReadPause();		
 	}
 
 	private bool ReadPause()
 	{
 		if (Input.GetKeyUp(KeyCode.Escape)) LockMouse(!IsLockedCursor);
 		// Returns if game is paused or not (if cursor locked -> not paused)
-		return !IsLockedCursor; 
+		return !IsLockedCursor;
 	}
 
 	public float GetMouseInput(string axis)
@@ -74,7 +74,7 @@ public class InputManager : MonoBehaviour
 	public bool AttemptedInteract()
 	{
 		if (Disabled) return false;
-		return Input.GetKey(KeyCode.E) || Input.GetMouseButton(0);
+		return Input.GetKeyDown(KeyCode.E) || Input.GetMouseButtonDown(0);
 	}
 
 	public bool AttemptedCrouch()
