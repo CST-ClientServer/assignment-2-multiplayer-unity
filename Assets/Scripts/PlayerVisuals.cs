@@ -9,6 +9,7 @@ public class PlayerVisuals : MonoBehaviour
     public static readonly string IS_SPRINTING = "IsSprinting";
     public static readonly string IS_GROUNDED = "IsGrounded";
     public static readonly string IS_CROUCHING = "IsCrouching";
+    public static readonly string REVIVE = "Reviving";
     public static readonly string JUMP = "Jumping";
     public static readonly string FALL = "Falling";
     public static readonly string DYING = "Dying";
