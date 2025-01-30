@@ -88,6 +88,12 @@ public class GameDriver : MonoBehaviour
 		else return remotePlayer.IsChasing;		
 	}
 
+	public Player GetPlayer(bool local)
+	{
+		if (local) return localPlayer;
+		else return remotePlayer;
+	}
+
 	private void RunTimer()
 	{
 		// Trigger next state after time expires
@@ -129,8 +135,7 @@ public class GameDriver : MonoBehaviour
 		remotePlayer.transform.forward = new Vector3(0, 0, -1);
 
 		// Alternate between whos it
-		localPlayer.IsChasing = !localPlayer.IsChasing;
-		remotePlayer.IsChasing = !remotePlayer.IsChasing;
+		localPlayer.IsChasing = !localPlayer.IsChasing;		
 
 		GameStartEvent.Invoke();
 	}
