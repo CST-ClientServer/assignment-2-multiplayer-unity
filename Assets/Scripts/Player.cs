@@ -25,8 +25,9 @@ public class Player : MonoBehaviour
 
 	// Events
 	public UnityEvent PlayerDiedEvent = new();
+	public UnityEvent PlayerReviveEvent = new();	
 	public UnityEvent PlayerCrouchEvent = new();
-	public UnityEvent PlayerReviveEvent = new();
+	public UnityEvent PlayerSprintEvent = new();
 
 	// Running variables
 	public bool IsChasing { get; set; } = false;
@@ -100,12 +101,14 @@ public class Player : MonoBehaviour
 	{
 		// Entering state will automatically call animation
 		IsCrouching = crouching;
+		PlayerCrouchEvent.Invoke();
 	}
 
 	public void Sprint(bool sprinting)
 	{
 		// Entering state will automatically call animation
 		IsSprinting = sprinting;
+		PlayerSprintEvent.Invoke();
 	}
 
 	public void Interact()
