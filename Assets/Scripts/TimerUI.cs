@@ -1,3 +1,4 @@
+using System;
 using TMPro;
 using UnityEngine;
 
@@ -10,27 +11,34 @@ public class TimerUI : MonoBehaviour
 
     // Components
     private GameDriver gameDriver;
-    private TextMeshPro textField;
+    private TextMeshProUGUI textField;
 
     // Running variables
     private bool showTimer;
 
 	void Start()
     {
-        textField = GetComponent<TextMeshPro>();
+        textField = GetComponent<TextMeshProUGUI>();
         gameDriver = GameDriver.Instance;
 
         // Add event listeners
+        gameDriver.GameStartEvent.AddListener(() => showTimer = true);
         gameDriver.GameEndEvent.AddListener(() =>
         {
             showTimer = false;
             textField.text = POSTGAME_MESSAGE;
         });
-        gameDriver.GameStartEvent.AddListener(() => showTimer = true);
+        gameDriver.GameRestartEvent.AddListener(() =>
+        {
+            showTimer = false;
+            textField.text = PREGAME_MESSAGE;
+        });
     }
 
 	private void Update()
 	{
-        if (showTimer) textField.text = TIMER_MESSAGE_TEMPLATE + gameDriver.GetTime();
+        // Round to 1 decimal place
+        if (showTimer) 
+            textField.text = TIMER_MESSAGE_TEMPLATE + (GameDriver.TimeLimitSeconds - gameDriver.GetTime()).ToString("0.0");
 	}
 }

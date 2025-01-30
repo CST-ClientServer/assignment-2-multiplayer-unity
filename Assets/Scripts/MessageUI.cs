@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 
@@ -11,20 +12,55 @@ public class MessageUI : MonoBehaviour
 
     // Components
     private GameDriver gameDriver;
-    private TextMeshPro textField;
+    private TextMeshProUGUI textField;
+
+    // Running variables
+    private bool inCountdown = true;
+    private float showPeriodSeconds = 2;
+    private float timer = 0;
 
 	void Start()
     {
-        textField = GetComponent<TextMeshPro>();
+        textField = GetComponent<TextMeshProUGUI>();
         gameDriver = GameDriver.Instance;
         
         // Add event listeners
-        gameDriver.GameStartEvent.AddListener(() => DisplayText(LOSE_MESSAGE));
-        gameDriver.GameEndEvent.AddListener(() => DisplayText(WIN_MESSAGE));        
+        gameDriver.GameRestartEvent.AddListener(() => inCountdown = true);
+        gameDriver.GameStartEvent.AddListener(() =>
+        {
+            inCountdown = false;
+            if (gameDriver.IsLocalPlayerIt()) DisplayText(CHASER_MESSAGE);
+            else DisplayText(RUNNER_MESSAGE);
+        });
+        gameDriver.GameEndEvent.AddListener(() => 
+        {
+            inCountdown = false;
+            if (gameDriver.IsLocalPlayerDead()) DisplayText(LOSE_MESSAGE);
+            else DisplayText(WIN_MESSAGE);
+        });
     }
 
-    private void DisplayText(string text)
+	private void Update()
+	{
+        if (inCountdown)
+        {
+            textField.text = (GameDriver.StartDelaySeconds - Mathf.Ceil(gameDriver.GetTime())).ToString();
+            return;
+        }
+        // Early return if no text is on screen
+        if (textField.text.Length == 0) return;
+
+        // Run timer to remove text after 2 seconds
+        if (timer > showPeriodSeconds)
+        {
+            textField.text = "";
+        }
+        else timer += Time.deltaTime;
+	}
+
+	private void DisplayText(string text)
     {
-        // TODO: Implement this with animation
+        textField.text = text;
+        timer = 0;
     }
 }
