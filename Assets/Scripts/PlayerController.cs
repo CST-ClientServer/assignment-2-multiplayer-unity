@@ -27,10 +27,14 @@ public class PlayerController : MonoBehaviour
 			inputManager.Disabled = false;
 			network.SendMessage(ByteTag.DEAD_BOOL, false);
 		});
+		player.PlayerSprintEvent.AddListener(() => network.SendMessage(ByteTag.SPRINTING_BOOL, player.IsSprinting));
+		player.PlayerCrouchEvent.AddListener(() => network.SendMessage(ByteTag.CROUCHING_BOOL, player.IsCrouching));
 	}
 
 	void Update()
 	{
+		if (GameDriver.Instance.State == GameDriver.GameState.PRE_GAME 
+			|| GameDriver.Instance.State == GameDriver.GameState.POST_GAME) return;
 		HandleMovement();
 		HandleInteract();
 		HandleCrouch();
@@ -43,8 +47,7 @@ public class PlayerController : MonoBehaviour
 
 		// Calculate movement
 		Vector3 directionVector = inputManager.GetInputVector().normalized;
-		float speedFactor = player.IsSprinting ? player.MoveSpeed * player.SprintMultiplier : player.MoveSpeed;
-		network.SendMessage(ByteTag.SPRINTING_BOOL, player.IsSprinting); // Send sprint state to network
+		float speedFactor = player.IsSprinting ? player.MoveSpeed * player.SprintMultiplier : player.MoveSpeed;			
 
 		// Check collision and calculate slide angle if possible
 		Vector3 moveVector;
@@ -65,8 +68,9 @@ public class PlayerController : MonoBehaviour
 
 		// Set new position
 		Vector3 newPosition = player.transform.position + moveVector * Time.deltaTime;
+		// Only send when different
+		if (player.transform.position != newPosition) network.SendMessage(ByteTag.POSITION_VECTOR, newPosition);
 		player.SetPosition(newPosition);
-		network.SendMessage(ByteTag.POSITION_VECTOR, newPosition);
 
 		if (inputManager.AttemptedJump() && player.IsGrounded())
 		{
@@ -76,8 +80,8 @@ public class PlayerController : MonoBehaviour
 
 		// Rotate based on direction
 		Vector3 newForward = Vector3.Slerp(transform.forward, directionVector, Time.deltaTime * player.ModelRotationSpeed);
+		if (player.transform.forward != newForward) network.SendMessage(ByteTag.FORWARD_VECTOR, newForward); // only send if Different
 		player.SetForward(newForward);
-		network.SendMessage(ByteTag.FORWARD_VECTOR, newForward);
 	}
 
 	private void HandleInteract()
