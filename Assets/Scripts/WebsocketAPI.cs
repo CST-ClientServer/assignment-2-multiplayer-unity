@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.SignalR.Client;
 using System;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.LightTransport;
 
@@ -31,14 +32,14 @@ public class WebsocketAPI : MonoBehaviour, INetwork
 		// Handle floats
 		connection.On<int, float>("OnFloatReceived", (int tag, float num) =>
 		{
-			ByteTag convertedTag = (ByteTag) tag;
-			if (convertedTag == ByteTag.TIMER_FLOAT) GameDriver.Instance.SyncTimer(num);
+			ByteTag convertedTag = (ByteTag) tag;            
+            if (convertedTag == ByteTag.TIMER_FLOAT) GameDriver.Instance.SyncTimer(num);
 		});
 		// Handle bools
 		connection.On<int, bool>("OnBoolReceived", (int tag, bool flag) =>
 		{
-			ByteTag convertedTag = (ByteTag) tag;
-			switch (convertedTag)
+			ByteTag convertedTag = (ByteTag) tag;            
+            switch (convertedTag)
 			{
                 case ByteTag.CHASING_BOOL:
 					controller.SetChasing(flag);

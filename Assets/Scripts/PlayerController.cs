@@ -33,6 +33,8 @@ public class PlayerController : MonoBehaviour
 
 	void Update()
 	{
+		if (GameDriver.Instance.State == GameDriver.GameState.PRE_GAME 
+			|| GameDriver.Instance.State == GameDriver.GameState.POST_GAME) return;
 		HandleMovement();
 		HandleInteract();
 		HandleCrouch();
