@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -41,11 +42,26 @@ public class PlayerController : MonoBehaviour
 		player.Sprint(inputManager.AttemptedSprint());
 
 		// Calculate movement
-		Vector3 directionVector = inputManager.GetInputVector();
-		Vector3 moveVector = directionVector * player.MoveSpeed;
-		if (player.IsSprinting) moveVector *= player.SprintMultiplier;
-		network.SendMessage(ByteTag.SPRINTING_BOOL, player.IsSprinting);
-		
+		Vector3 directionVector = inputManager.GetInputVector().normalized;
+		float speedFactor = player.IsSprinting ? player.MoveSpeed * player.SprintMultiplier : player.MoveSpeed;
+		network.SendMessage(ByteTag.SPRINTING_BOOL, player.IsSprinting); // Send sprint state to network
+
+		// Check collision and calculate slide angle if possible
+		Vector3 moveVector;
+		if (!CanMove(directionVector, speedFactor))
+		{
+			// Attempt movement on X only
+			Vector3 directionVectorX = new Vector3(directionVector.x, 0, 0).normalized;
+			if (CanMove(directionVectorX, speedFactor)) moveVector = directionVectorX * speedFactor;
+			else
+			{
+				// Attempt movement on Z only
+				Vector3 directionVectorZ = new Vector3(0, 0, directionVector.z).normalized;
+				if (CanMove(directionVectorZ, speedFactor)) moveVector = directionVectorZ * speedFactor;
+				else moveVector = Vector3.zero; // Both directions cannot move, so set to 0
+			}
+		}
+		else moveVector = directionVector * speedFactor;
 
 		// Set new position
 		Vector3 newPosition = player.transform.position + moveVector * Time.deltaTime;
@@ -57,6 +73,7 @@ public class PlayerController : MonoBehaviour
 			player.Jump(player.JumpStrength);
 			network.SendMessage(ByteTag.JUMP_TRIGGER, true);
 		}
+
 		// Rotate based on direction
 		Vector3 newForward = Vector3.Slerp(transform.forward, directionVector, Time.deltaTime * player.ModelRotationSpeed);
 		player.SetForward(newForward);
@@ -75,5 +92,11 @@ public class PlayerController : MonoBehaviour
 		if (!inputManager.AttemptedCrouch()) return;
 		player.Crouch(!player.IsCrouching);
 		network.SendMessage(ByteTag.CROUCHING_BOOL, player.IsCrouching); // Don't flip since previous line does it already
+	}
+
+	private bool CanMove(Vector3 direction, float speed)
+	{
+		return !Physics.CapsuleCast(player.transform.position, player.transform.position + Vector3.up * player.Height,
+				player.Radius, direction, speed * Time.deltaTime);
 	}
 }
