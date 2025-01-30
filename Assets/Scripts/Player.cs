@@ -1,6 +1,6 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -35,6 +35,7 @@ public class Player : MonoBehaviour
 	public bool IsSprinting { get; private set; } = false;
 	public bool IsCrouching { get; private set; } = false;	
 	private float verticalSpeed = 0;
+	private Queue<Action> interactQueue = new();
 
 	void Start()
 	{
@@ -58,6 +59,9 @@ public class Player : MonoBehaviour
 		Position += Vector3.up * verticalSpeed * Time.deltaTime;
 		transform.position = Position;
 		transform.forward = Forward;
+
+		// Process interact queue from separate thread
+		while (interactQueue.Count > 0) interactQueue.Dequeue().Invoke();
 	}
 
 	public void KillPlayer()
@@ -109,17 +113,21 @@ public class Player : MonoBehaviour
 		if (!IsChasing) return; // Don't do anything if player isnt it
 		playerVisuals.PlayAnimation(PlayerVisuals.HIT);
 
-		// Check collision in front
-		RaycastHit collidedObject;
-		bool collided = Physics.CapsuleCast(Position, Position + Vector3.up * Height, Radius,
-				Forward, out collidedObject, 2f);		
+		// Need to queue it since unity doesnt let capsulecast in separate thread
+		interactQueue.Enqueue(new Action(() => {
 
-		// Early exit if no collision
-		if (!collided) return;
+			// Check collision in front
+			RaycastHit collidedObject;
+			bool collided = Physics.CapsuleCast(Position, Position + Vector3.up * Height, Radius,
+					Forward, out collidedObject, 2f);
 
-		// Try to invoke kill on collided object
-		Player player = collidedObject.collider.GetComponent<Player>();
-		if (player) player.KillPlayer();
+			// Early exit if no collision
+			if (!collided) return;
+
+			// Try to invoke kill on collided object
+			Player player = collidedObject.collider.GetComponent<Player>();
+			if (player) player.KillPlayer();
+		}));
 	}
 
 	public bool IsGrounded()
