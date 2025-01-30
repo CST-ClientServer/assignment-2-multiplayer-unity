@@ -8,7 +8,7 @@ public class MessageUI : MonoBehaviour
     private static readonly string CHASER_MESSAGE = "You're It";
     private static readonly string RUNNER_MESSAGE = "You're Running";
     private static readonly string WIN_MESSAGE = "You Win";
-    private static readonly string LOSE_MESSAGE = "You Died";
+    private static readonly string LOSE_MESSAGE = "You Lose";
 
     // Components
     private GameDriver gameDriver;
@@ -29,13 +29,16 @@ public class MessageUI : MonoBehaviour
         gameDriver.GameStartEvent.AddListener(() =>
         {
             inCountdown = false;
-            if (gameDriver.IsLocalPlayerIt()) DisplayText(CHASER_MESSAGE);
+            if (gameDriver.IsPlayerIt(local: true)) DisplayText(CHASER_MESSAGE);
             else DisplayText(RUNNER_MESSAGE);
         });
         gameDriver.GameEndEvent.AddListener(() => 
         {
             inCountdown = false;
-            if (gameDriver.IsLocalPlayerDead()) DisplayText(LOSE_MESSAGE);
+            if (gameDriver.IsPlayerDead(local: true)) DisplayText(LOSE_MESSAGE);
+            // Player failed to catch remote player
+            else if (gameDriver.IsPlayerIt(local: true) && !gameDriver.IsPlayerDead(local: false)) 
+                DisplayText(LOSE_MESSAGE);
             else DisplayText(WIN_MESSAGE);
         });
     }
