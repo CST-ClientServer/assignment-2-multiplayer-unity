@@ -1,10 +1,19 @@
+using Microsoft.AspNetCore.SignalR.Client;
 using UnityEngine;
 
-public class WebsocketAPI : INetwork
+public class WebsocketAPI : MonoBehaviour, INetwork
 {
-	// TODO: Implement these
-	public void SendMessage(ByteTag tag, Vector3 data)
+	[SerializeField] string serverURL = "http://localhost:11000";
+	private HubConnection connection;
+
+	private void Awake()
 	{
+		connection = new HubConnectionBuilder().WithUrl(serverURL).Build();
+		connection.StartAsync();
+	}
+
+	public void SendMessage(ByteTag tag, Vector3 data)
+	{		
 		throw new System.NotImplementedException();
 	}
 
