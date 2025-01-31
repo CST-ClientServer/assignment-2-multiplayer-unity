@@ -133,6 +133,7 @@ public class MulticastAPI : MonoBehaviour, INetwork
 			// Set up receiver socket
 			multicastSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, 1);
 			multicastSocket.Bind(localEndpoint);
+			multicastSocket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.MulticastLoopback, false); // Disable loopback
 			MulticastOption options = new(IPAddress.Parse(ipAddress), IPAddress.Any);
 			multicastSocket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership, options);
 			return multicastSocket;
