@@ -5,7 +5,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 
 // Add services to the container.
-builder.Services.AddSignalR();
+builder.Services.AddSignalR(options =>
+{
+	options.MaximumReceiveMessageSize = 128;
+	options.StreamBufferCapacity = 13;
+});
 
 var app = builder.Build();
 
