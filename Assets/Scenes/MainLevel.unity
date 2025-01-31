@@ -647,11 +647,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 472885959}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a65ec581546e34f498a5a600f32551fc, type: 3}
+  m_Script: {fileID: 11500000, guid: b691f52f941593c4f9dcda31d2b15844, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ipAddress: 230.0.0.1
-  port: 11000
+  serverURL: https://localhost:8000
 --- !u!1001 &496603422
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -744,6 +743,16 @@ PrefabInstance:
         type: 3}
       propertyPath: position.z
       value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6248428946677786193, guid: cf8df2fa8c66f2f44aca38e3258672dd,
+        type: 3}
+      propertyPath: IgnoreGravity
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6248428946677786193, guid: cf8df2fa8c66f2f44aca38e3258672dd,
+        type: 3}
+      propertyPath: ignoreGravity
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1189,6 +1198,11 @@ PrefabInstance:
         type: 3}
       propertyPath: position.z
       value: -5
+      objectReference: {fileID: 0}
+    - target: {fileID: 855506670730600240, guid: 5cf357714b213cf46a5b6bd4953b7fba,
+        type: 3}
+      propertyPath: IgnoreGravity
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 855506670730600240, guid: 5cf357714b213cf46a5b6bd4953b7fba,
         type: 3}

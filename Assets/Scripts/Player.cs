@@ -36,6 +36,7 @@ public class Player : MonoBehaviour
 	public bool IsSprinting { get; private set; } = false;
 	public bool IsCrouching { get; private set; } = false;	
 	private float verticalSpeed = 0;
+	[SerializeField] private bool IgnoreGravity = true;
 	private Queue<Action> interactQueue = new();
 
 	void Start()
@@ -57,7 +58,7 @@ public class Player : MonoBehaviour
 		// Play fall animation
 		if (verticalSpeed <= 0) playerVisuals.PlayAnimation(PlayerVisuals.FALL);
 
-		Position += Vector3.up * verticalSpeed * Time.deltaTime;
+		if (!IgnoreGravity) Position += Vector3.up * verticalSpeed * Time.deltaTime;
 		transform.position = Position;
 		transform.forward = Forward;
 
@@ -83,11 +84,14 @@ public class Player : MonoBehaviour
 	{
 		if (Position == position) IsWalking = false;
 		else IsWalking = true;
+
+		if (IsDead) return;
 		Position = position;
 	}
 
 	public void SetForward(Vector3 rotation)
 	{
+		if (IsDead) return;
 		Forward = rotation;
 	}
 
