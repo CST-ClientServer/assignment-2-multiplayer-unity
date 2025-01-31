@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.SignalR.Client;
 using System;
 using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.LightTransport;
 
 public class WebsocketAPI : MonoBehaviour, INetwork
 {
