@@ -23,7 +23,7 @@ public class GameDriver : MonoBehaviour
 	// Running variables
 	public GameState State { get; private set; } = GameState.PRE_GAME;
 	public static readonly float TimeLimitSeconds = 60;
-	public static readonly float StartDelaySeconds = 10;
+	public static readonly float StartDelaySeconds = 5;
 	public static readonly float PostGameDelaySeconds = 5;
 	private float timer = 0;
 	private float currentLimit;
