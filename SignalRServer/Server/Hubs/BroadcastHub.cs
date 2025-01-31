@@ -10,27 +10,25 @@ public class BroadcastHub : Hub
     public BroadcastHub()
     {
         Thread clock = new(() => RunClock());
+        clock.Start();
+	}
+
+    public async void BroadcastVector(int tag, float[] vector)
+    {
+        if (broadcasting)
+            await Clients.Others.SendAsync("OnVectorReceived", tag, vector);
     }
 
-    public async Task BroadcastVector(int tag, float[] vector)
-    {
-        Console.WriteLine("Received Vector");
+    public async void BroadcastBool(int tag, bool state)
+    {        
         if (broadcasting)
-            await Clients.All.SendAsync("OnVectorReceived", tag, vector);
-    }
-
-    public async Task BroadcastBool(int tag, bool state)
-    {
-        Console.WriteLine("Received Bool");
-        if (broadcasting)
-            await Clients.All.SendAsync("OnBoolReceived", tag, state);
+            await Clients.Others.SendAsync("OnBoolReceived", tag, state);            
     }
     
-    public async Task BroadcastFloat(int tag, float number)
-    {
-        Console.WriteLine("Received Float");
+    public async void BroadcastFloat(int tag, float number)
+    {        
         if (broadcasting)
-            await Clients.All.SendAsync("OnFloatReceived", tag, number);
+            await Clients.Others.SendAsync("OnFloatReceived", tag, number);           
     }
 
     private void RunClock()
@@ -38,7 +36,7 @@ public class BroadcastHub : Hub
         while(true)
         {
             Thread.Sleep(broadcastPeriod);
-            broadcasting = false;
+            broadcasting = false;            
             Thread.Sleep(downPeriod);
             broadcasting = true;
         }
