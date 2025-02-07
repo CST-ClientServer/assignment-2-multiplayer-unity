@@ -35,7 +35,7 @@ public class Player : MonoBehaviour
 	public bool IsWalking { get; private set; } = false;
 	public bool IsSprinting { get; private set; } = false;
 	public bool IsCrouching { get; private set; } = false;	
-	private float verticalSpeed = 0;
+	public float VerticalSpeed { get; private set; } = 0;
 	[SerializeField] private bool IgnoreGravity = true;
 	private Queue<Action> interactQueue = new();
 
@@ -52,15 +52,19 @@ public class Player : MonoBehaviour
 	void Update()
 	{
 		// Calculate gravity
-		if (IsGrounded() && verticalSpeed <= 0) verticalSpeed = 0;
-		else verticalSpeed += Physics.gravity.y * Time.deltaTime;
+		if (IsGrounded() && VerticalSpeed <= 0) VerticalSpeed = 0;
+		else VerticalSpeed += Physics.gravity.y * Time.deltaTime;
 
 		// Play fall animation
-		if (verticalSpeed <= 0) playerVisuals.PlayAnimation(PlayerVisuals.FALL);
+		if (VerticalSpeed <= 0) playerVisuals.PlayAnimation(PlayerVisuals.FALL);
 
-		if (!IgnoreGravity) Position += Vector3.up * verticalSpeed * Time.deltaTime;
+		if (!IgnoreGravity) Position += Vector3.up * VerticalSpeed * Time.deltaTime;
+
+		if (transform.position == Position) IsWalking = false;
+
 		transform.position = Position;
 		transform.forward = Forward;
+
 
 		// Process interact queue from separate thread
 		while (interactQueue.Count > 0) interactQueue.Dequeue().Invoke();
@@ -82,9 +86,8 @@ public class Player : MonoBehaviour
 
 	public void SetPosition(Vector3 position)
 	{
-		if (Position == position) IsWalking = false;
-		else IsWalking = true;
-
+		// Calling this naturally means character is walking
+		IsWalking = true;
 		if (IsDead) return;
 		Position = position;
 	}
@@ -97,7 +100,7 @@ public class Player : MonoBehaviour
 
 	public void Jump(float amount)
 	{
-		verticalSpeed = amount;
+		VerticalSpeed = amount;
 		playerVisuals.PlayAnimation(PlayerVisuals.JUMP);
 	}
 
