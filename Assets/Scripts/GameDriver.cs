@@ -15,6 +15,9 @@ public class GameDriver : MonoBehaviour
 		POST_GAME
 	}
 
+	// Constants
+	[SerializeField] private bool localStartAsChaser = false;
+
 	// Components
 	[SerializeField] private Player localPlayer;
 	[SerializeField] private Player remotePlayer;
@@ -24,11 +27,12 @@ public class GameDriver : MonoBehaviour
 	public GameState State { get; private set; } = GameState.PRE_GAME;
 	public static readonly float TimeLimitSeconds = 60;
 	public static readonly float StartDelaySeconds = 5;
-	public static readonly float PostGameDelaySeconds = 5;
+	public static readonly float PostGameDelaySeconds = 5;	
 	private float timer = 0;
 	private float currentLimit;
 
 	// Events
+	public UnityEvent TimerChangeEvent = new();
 	public UnityEvent GameStartEvent = new();
 	public UnityEvent GameEndEvent = new();
 	public UnityEvent GameRestartEvent = new();
@@ -51,8 +55,7 @@ public class GameDriver : MonoBehaviour
 		inputManager.Disabled = true;
 
 		// Set up first round
-		localPlayer.IsChasing = true;
-		remotePlayer.IsChasing = false;
+		localPlayer.IsChasing = localStartAsChaser;		
 
 		// Listen to player death
 		localPlayer.PlayerDiedEvent.AddListener(() => EndGame());
@@ -116,10 +119,14 @@ public class GameDriver : MonoBehaviour
 				RestartGame();
 			}
 		}
-		else timer += Time.deltaTime;
+		else
+		{
+			timer += Time.deltaTime;
+			TimerChangeEvent.Invoke();
+		}
 	}
 
-	private void StartGame()
+	public void StartGame()
 	{
 		// Set properties
 		inputManager.Disabled = false;
@@ -134,13 +141,13 @@ public class GameDriver : MonoBehaviour
 		remotePlayer.transform.position = new Vector3(0, 0.5f, 5);
 		remotePlayer.transform.forward = new Vector3(0, 0, -1);
 
-		// Alternate between whos it
+		// Alternate between who's it
 		localPlayer.IsChasing = !localPlayer.IsChasing;		
 
 		GameStartEvent.Invoke();
 	}
 
-	private void EndGame()
+	public void EndGame()
 	{
 		inputManager.Disabled = true;
 		State = GameState.POST_GAME;
@@ -149,7 +156,7 @@ public class GameDriver : MonoBehaviour
 		GameEndEvent.Invoke();
 	}
 
-	private void RestartGame()
+	public void RestartGame()
 	{
 		State = GameState.PRE_GAME;
 		timer = 0;
