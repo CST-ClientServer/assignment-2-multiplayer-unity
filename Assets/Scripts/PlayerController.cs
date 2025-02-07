@@ -69,6 +69,7 @@ public class PlayerController : MonoBehaviour
 		Vector3 newPosition = player.transform.position + moveVector * Time.deltaTime;
 		// Only send when different
 		if (player.transform.position != newPosition) network.SendMessage(ByteTag.POSITION_VECTOR, newPosition);
+		else if (player.VerticalSpeed != 0) network.SendMessage(ByteTag.POSITION_VECTOR, newPosition); // Send if jumping or falling
 		player.SetPosition(newPosition);
 
 		if (inputManager.AttemptedJump() && player.IsGrounded())
