@@ -31,6 +31,12 @@ public class BroadcastHub : Hub
             await Clients.Others.SendAsync("OnFloatReceived", tag, number);           
     }
 
+    public async void BroadcastGameState(int tag, int gameState)
+    {
+        if (broadcasting)
+            await Clients.Others.SendAsync("OnGameStateReceived", tag, gameState);
+    }
+
     private void RunClock()
     {
         while(true)
