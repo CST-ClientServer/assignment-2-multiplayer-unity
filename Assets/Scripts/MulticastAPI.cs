@@ -63,6 +63,14 @@ public class MulticastAPI : MonoBehaviour, INetwork
 		outSocket.SendTo(byteData, sendEndpoint);
 	}
 
+	public void SendMessage(ByteTag tag, GameDriver.GameState state)
+	{
+		byte[] byteData = new byte[2];
+		byteData[0] = (byte)tag;
+		byteData[1] = (byte)state;
+		outSocket.SendTo(byteData, sendEndpoint);
+	}
+
 	// This function is expected to be started on a separate thread
 	public void ReceiveMessage(NetworkController controller)
 	{
@@ -79,7 +87,7 @@ public class MulticastAPI : MonoBehaviour, INetwork
 				if (tag == ByteTag.TIMER_FLOAT)
 				{
 					// Handle float data types
-					float timer = System.BitConverter.ToSingle(buffer, 1); // (Not endian space, pain)
+					float timer = System.BitConverter.ToSingle(buffer, 1);					
 					GameDriver.Instance.SyncTimer(timer);
 				}
 				else if (tag == ByteTag.INTERACT_TRIGGER) controller.TriggerInteract();
@@ -89,10 +97,7 @@ public class MulticastAPI : MonoBehaviour, INetwork
 					bool value = (byte)buffer[1] == 1 ? true : false;
 					// Handle the boolean data types
 					switch (tag)
-					{
-						case ByteTag.CHASING_BOOL:
-							controller.SetChasing(value);
-							break;
+					{						
 						case ByteTag.DEAD_BOOL:
 							controller.ToggleDead(value);
 							break;
@@ -103,6 +108,14 @@ public class MulticastAPI : MonoBehaviour, INetwork
 							controller.ToggleCrouch(value);
 							break;
 					}
+				}
+				else if (tag == ByteTag.GAME_STATE_CHANGE)
+				{
+					// Handle game state changes
+					GameDriver.GameState state = (GameDriver.GameState)buffer[1];
+					if (state == GameDriver.GameState.PRE_GAME) GameDriver.Instance.RestartGame();
+					else if (state == GameDriver.GameState.POST_GAME) GameDriver.Instance.EndGame();
+					else GameDriver.Instance.StartGame(); // Last state it could be is start game
 				}
 				else
 				{

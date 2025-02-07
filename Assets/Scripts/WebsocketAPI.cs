@@ -54,6 +54,23 @@ public class WebsocketAPI : MonoBehaviour, INetwork
 					break;
 			}
         });
+		connection.On<int, int>("OnGameStateReceived", (int tag, int gameState) =>
+		{
+			ByteTag convertedTag = (ByteTag) tag;
+			GameDriver.GameState state = (GameDriver.GameState) gameState;
+			switch(state)
+			{
+				case GameDriver.GameState.PRE_GAME:
+					GameDriver.Instance.RestartGame();
+					break;
+				case GameDriver.GameState.POST_GAME:
+					GameDriver.Instance.EndGame();
+					break;
+				case GameDriver.GameState.IN_GAME:
+					GameDriver.Instance.StartGame();
+					break;
+			}
+		});
 	}
 
     private void OnDestroy()
@@ -74,6 +91,11 @@ public class WebsocketAPI : MonoBehaviour, INetwork
 	public async void SendMessage(ByteTag tag, float data)
 	{
 		await connection.SendAsync("BroadcastFloat", tag, data);
+	}
+
+	public async void SendMessage(ByteTag tag, GameDriver.GameState state)
+	{
+		await connection.SendAsync("BroadcastGameState", tag, state);
 	}
 
 	public void ReceiveMessage(NetworkController networkController)

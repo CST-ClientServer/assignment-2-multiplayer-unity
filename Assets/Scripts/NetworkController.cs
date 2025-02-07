@@ -16,9 +16,23 @@ public class NetworkController : MonoBehaviour
 
 		GameDriver.Instance.GameStartEvent.AddListener(() =>
 		{
-            if (GameDriver.Instance.IsPlayerIt(local: true)) network.SendMessage(ByteTag.CHASING_BOOL, true);
-            else network.SendMessage(ByteTag.CHASING_BOOL, false);
+            network.SendMessage(ByteTag.GAME_STATE_CHANGE, GameDriver.Instance.State);
 		});
+
+        GameDriver.Instance.GameEndEvent.AddListener(() =>
+        {
+            network.SendMessage(ByteTag.GAME_STATE_CHANGE, (byte) GameDriver.Instance.State);
+        });
+
+        GameDriver.Instance.GameRestartEvent.AddListener(() =>
+        {
+            network.SendMessage(ByteTag.GAME_STATE_CHANGE, (byte)GameDriver.Instance.State);
+        });
+
+        GameDriver.Instance.TimerChangeEvent.AddListener(() =>
+        {
+            network.SendMessage(ByteTag.TIMER_FLOAT, GameDriver.Instance.GetTime());
+        });
 	}
 
     public void MovePlayer(Vector3 position)
